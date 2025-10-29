@@ -1,0 +1,18 @@
+# Fichiers d'environnement
+.env
+.env.local
+
+# Fichiers temporaires
+*.log
+*.tmp
+*.bak
+
+# Dossiers de volumes Docker
+data/
+volumes/
+backups/
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+
