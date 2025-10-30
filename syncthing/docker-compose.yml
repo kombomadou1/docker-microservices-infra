@@ -1,0 +1,19 @@
+services:
+  syncthing:
+    image: linuxserver/syncthing:latest
+    container_name: syncthing
+    restart: unless-stopped
+    networks:
+      - esir-net
+    ports:
+      - "8384:8384"  # interface web
+      - "22000:22000" # sync TCP
+      - "21027:21027/udp" # local discovery
+    volumes:
+      - ./config:/var/syncthing/config
+      - ./data:/var/syncthing/data
+
+networks:
+  esir-net:
+    external: true
+
