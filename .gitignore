@@ -1,18 +1,27 @@
 # Fichiers d'environnement
 .env
-.env.local
-
+.env.*
+!env.example
+ 
 # Fichiers temporaires
 *.log
 *.tmp
 *.bak
-
-# Dossiers de volumes Docker
-data/
-volumes/
-backups/
+*.swp
 
 # Fichiers système
 .DS_Store
 Thumbs.db
 
+# Dossiers de données et volumes persistants
+data/
+db/
+volumes/
+backups/
+
+# Répertoires spécifiques à certains services
+*/data/
+*/db/
+*/uploads/
+*/files/
+*/storage/
