@@ -1,0 +1,48 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: gitea_db
+    restart: unless-stopped
+    networks:
+      - esir-net
+    environment:
+      - POSTGRES_USER=gitea
+      - POSTGRES_PASSWORD=gitea_password
+      - POSTGRES_DB=giteadb
+    volumes:
+      - ./db:/var/lib/postgresql/data
+
+  gitea:
+    image: gitea/gitea:latest
+    container_name: gitea
+    depends_on:
+      - db
+     
+    restart: unless-stopped
+    networks:
+      - esir-net
+    ports:
+      - "3000:3000"   # web UI
+      - "2222:22"     # ssh for git (map to 2222 local)
+    volumes:
+      - ./data:/data
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+     
+        # DB connection used by Gitea (host:port)
+      - DB_TYPE=postgres
+      - DB_HOST=db:5432
+      - DB_NAME=giteadb
+      - DB_USER=gitea
+      - DB_PASSWD=gitea_password_change_me
+     
+        # Configurable server values (used by the installer or auto config)
+      - GITEA__server__DOMAIN=148.60.11.119
+      - GITEA__server__ROOT_URL=http://148.60.11.119:3000/
+      - GITEA__server__HTTP_PORT=3000
+
+networks:
+  esir-net:
+    external: true
+
