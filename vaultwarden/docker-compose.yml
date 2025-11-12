@@ -1,0 +1,12 @@
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    restart: unless-stopped
+    environment:
+      ADMIN_TOKEN: "mydockerpass404"
+
+    volumes:
+      - ./vw-data:/data
+    ports:
+      - "4044:80"
