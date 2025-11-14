@@ -20,7 +20,7 @@ services:
       - joplin-db
     environment:
       - APP_PORT=22300
-      - APP_BASE_URL=http://148.60.11.119:22300
+      - APP_BASE_URL=http://joplin.tpdocker.istic.univ-rennes1.fr
       - DB_CLIENT=pg
       - POSTGRES_PASSWORD=joplinpass
       - POSTGRES_DATABASE=joplin
