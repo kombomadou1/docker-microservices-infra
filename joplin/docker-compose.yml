@@ -1,6 +1,6 @@
 services:
   joplin-db:
-    image: postgres:15
+    image: postgres:15-alpine
     container_name: joplin-db
     restart: unless-stopped
     environment:
@@ -13,7 +13,7 @@ services:
       - esir-net
 
   joplin-server:
-    image: joplin/server:latest
+    image: joplin/server:3.4.3
     container_name: joplin-server
     restart: unless-stopped
     depends_on:
@@ -27,7 +27,8 @@ services:
       - POSTGRES_USER=joplin
       - POSTGRES_PORT=5432
       - POSTGRES_HOST=joplin-db
-      - MAILER_ENABLED=0
+      - MAILER_ENABLED=1
+      - SIGNUP_ENABLED=1
     ports:
       - "22300:22300"
     volumes:
@@ -38,4 +39,3 @@ services:
 networks:
   esir-net:
     external: true
-

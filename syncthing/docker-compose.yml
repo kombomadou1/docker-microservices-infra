@@ -5,6 +5,9 @@ services:
     restart: unless-stopped
     networks:
       - esir-net
+    environment:
+      - PUID=1000
+      - PGID=1000
     ports:
       - "8384:8384"  # interface web
       - "22000:22000" # sync TCP
@@ -16,5 +19,3 @@ services:
 networks:
   esir-net:
     external: true
-
-

@@ -23,6 +23,7 @@ services:
       DB_USER: wikijs
       DB_PASS: wikijsrocks
       DB_NAME: wiki
+      APP_URL: "http://wiki.tpdocker.istic.univ-rennes1.fr"
     restart: unless-stopped
     ports:
       - "8082:3000"
