@@ -5,9 +5,9 @@ export const options = {
   vus: 10,          // 10 utilisateurs virtuels
   duration: '30s',  // pendant 30 secondes
 };
-
+//http://148.60.11.119:3000/
 export default function () {
-  const res = http.get('http://10.0.2.15:8080/');
+  const res = http.get('http://tpdocker:boomerboom@wiki.tpdocker.istic.univ-rennes1.fr/');
   check(res, {
     'status 200': (r) => r.status === 200,
   });
