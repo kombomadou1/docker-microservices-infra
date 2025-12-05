@@ -1,0 +1,56 @@
+---
+- name: Deployer tous les services Docker
+  hosts: docker_hosts
+  become: true
+
+  pre_tasks:
+    - name: Verifier si docker est present
+      ansible.builtin.command: docker --version
+      register: docker_check
+      ignore_errors: true
+
+    - name: Echouer si Docker est absent
+      ansible.builtin.fail:
+        msg: "Docker n'est pas installé sur la VM."
+      when: docker_check.rc != 0
+
+    - name: Verifier si docker compose v2 est present
+      ansible.builtin.command: docker compose version
+      register: docker_compose_check
+      ignore_errors: true
+
+    - name: Echouer si docker compose v2 est absent
+      ansible.builtin.fail:
+        msg: "Docker Compose v2 (commande 'docker compose') n'est pas disponible sur la VM."
+      when: docker_compose_check.rc != 0
+
+  tasks:
+    - name: Deployer Wiki.js
+      ansible.builtin.import_playbook: playbooks_ansible/wikijs.yml
+
+    - name: Deployer Gitea
+      ansible.builtin.import_playbook: playbooks_ansible/gitea.yml
+
+    - name: Deployer Vaultwarden
+      ansible.builtin.import_playbook: playbooks_ansible/vaultwarden.yml
+
+    - name: Deployer Nextcloud
+      ansible.builtin.import_playbook: playbooks_ansible/nextcloud.yml
+
+    - name: Deployer Wordpress
+      ansible.builtin.import_playbook: playbooks_ansible/wordpress.yml
+
+    - name: Deployer Mattermost
+      ansible.builtin.import_playbook: playbooks_ansible/mattermost.yml
+
+    - name: Deployer Monitoring
+      ansible.builtin.import_playbook: playbooks_ansible/monitoring.yml
+
+    - name: Deployer Syncthing
+      ansible.builtin.import_playbook: playbooks_ansible/syncthing.yml
+
+    - name: Deployer Trilium Notes
+      ansible.builtin.import_playbook: playbooks_ansible/triliumnotes.yml
+
+    - name: Deployer Loadtesting
+      ansible.builtin.import_playbook: playbooks_ansible/loadtesting.yml

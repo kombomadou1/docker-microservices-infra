@@ -1,0 +1,35 @@
+---
+- name: Deployer Mattermost
+  hosts: docker_hosts
+  become: true
+
+  vars:
+    service_project_path: /opt/docker_services/mattermost
+
+  tasks:
+    - name: Creer le dossier projet Mattermost sur la VM
+      ansible.builtin.file:
+        path: "{{ service_project_path }}"
+        state: directory
+        mode: "0755"
+
+    - name: Copier le docker-compose.yml Mattermost
+      ansible.builtin.copy:
+        src: ./mattermost/docker-compose.yml
+        dest: "{{ service_project_path }}/docker-compose.yml"
+        mode: "0644"
+
+    - name: Copier le docker-compose.without-nginx.yml Mattermost
+      ansible.builtin.copy:
+        src: ./mattermost/docker-compose.without-nginx.yml
+        dest: "{{ service_project_path }}/docker-compose.without-nginx.yml"
+        mode: "0644"
+
+    - name: Deployer Mattermost avec Docker Compose v2 (multiple files)
+      community.docker.docker_compose_v2:
+        project_src: "{{ service_project_path }}"
+        files:
+          - docker-compose.yml
+          - docker-compose.without-nginx.yml
+        state: present
+ 

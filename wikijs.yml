@@ -1,0 +1,45 @@
+---
+- name: Deployer Wiki.js avec Docker Compose
+  hosts: docker_hosts
+  become: true
+
+  vars:
+    wikijs_project_path: /opt/docker_services/wikijs
+
+  tasks:
+    - name: Verifier si docker est present
+      ansible.builtin.command: docker --version
+      register: docker_check
+      ignore_errors: true
+
+    - name: Echouer si Docker est absent
+      ansible.builtin.fail:
+        msg: "Docker n'est pas installé sur la VM, installe-le manuellement ou ajoute une tâche d'installation adaptée."
+      when: docker_check.rc != 0
+
+    - name: Verifier si docker compose v2 est present
+      ansible.builtin.command: docker compose version
+      register: docker_compose_check
+      ignore_errors: true
+
+    - name: Echouer si docker compose v2 est absent
+      ansible.builtin.fail:
+        msg: "Docker Compose v2 (commande 'docker compose') n'est pas disponible sur la VM."
+      when: docker_compose_check.rc != 0
+
+    - name: Créer le dossier projet Wiki.js sur la VM
+      ansible.builtin.file:
+        path: "{{ wikijs_project_path }}"
+        state: directory
+        mode: "0755"
+
+    - name: Copier le docker-compose Wiki.js sur la VM
+      ansible.builtin.copy:
+        src: ./wikijs/docker-compose.yml
+        dest: "{{ wikijs_project_path }}/docker-compose.yml"
+        mode: "0644"
+
+    - name: Deployer Wiki.js avec Docker Compose v2
+      community.docker.docker_compose_v2:
+        project_src: "{{ wikijs_project_path }}"
+        state: present
