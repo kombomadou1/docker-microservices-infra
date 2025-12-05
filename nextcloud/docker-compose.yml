@@ -14,12 +14,14 @@ services:
       MYSQL_USER: nextcloud
     volumes:
       - db:/var/lib/mysql
+    ports:
+      - "${NEXTCLOUD_DB_PORT:-3307}:3306"
 
   app:
     image: nextcloud:stable
     restart: always
     ports:
-      - "8080:80"
+      - "${NEXTCLOUD_HTTP_PORT:-8080}:80"
     depends_on:
       - db
     volumes:
@@ -29,3 +31,4 @@ services:
       MYSQL_DATABASE: nextcloud
       MYSQL_USER: nextcloud
       MYSQL_HOST: db
+

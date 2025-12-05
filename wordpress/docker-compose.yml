@@ -1,20 +1,33 @@
-version: "3.9"
-
 services:
-  wordpress:
+  wordpress1:
     image: wordpress:6.4-apache
     restart: always
     depends_on:
       - mariadb
     environment:
-      WORDPRESS_DB_HOST: mariadb:3306
+      WORDPRESS_DB_HOST: mariadb:${WORDPRESS_DB_PORT:-3306}
       WORDPRESS_DB_USER: wp
       WORDPRESS_DB_PASSWORD: wppassword
       WORDPRESS_DB_NAME: wordpress
     volumes:
       - wordpress_app_data:/var/www/html
     ports:
-      - "8081:80"
+      - "${WORDPRESS_HTTP1_PORT:-8081}:80"
+
+  wordpress2:
+    image: wordpress:6.4-apache
+    restart: always
+    depends_on:
+      - mariadb
+    environment:
+      WORDPRESS_DB_HOST: mariadb:${WORDPRESS_DB_PORT:-3306}
+      WORDPRESS_DB_USER: wp
+      WORDPRESS_DB_PASSWORD: wppassword
+      WORDPRESS_DB_NAME: wordpress
+    volumes:
+      - wordpress_app_data:/var/www/html
+    ports:
+      - "${WORDPRESS_HTTP2_PORT:-8087}:80"
 
   mariadb:
     image: mariadb:10.6
@@ -26,6 +39,8 @@ services:
       MYSQL_PASSWORD: wppassword
     volumes:
       - wordpress_db_data:/var/lib/mysql
+    ports:
+      - "${WORDPRESS_DB_PORT:-3306}:3306"
 
 volumes:
   wordpress_app_data:
