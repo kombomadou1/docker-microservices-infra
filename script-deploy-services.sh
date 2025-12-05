@@ -3,28 +3,52 @@ set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-echo "[0/5] Chargement du fichier .env global (si présent)..."
+echo "[0/6] Chargement du fichier .env global (si présent)..."
 if [ -f "$PROJECT_ROOT/.env" ]; then
   set -a
   . "$PROJECT_ROOT/.env"
   set +a
 fi
 
-# 1) Vérifier Docker / docker compose / nginx
+install_docker() {
+  echo "Docker n'est pas installé. Installation en cours (Ubuntu/Debian)..."
+  apt-get update
+  apt-get install -y ca-certificates curl gnupg lsb-release
+
+  install -m 0755 -d /etc/apt/keyrings
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+  chmod a+r /etc/apt/keyrings/docker.gpg
+
+  echo \
+    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+    $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
+
+  apt-get update
+  apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+}
+
+install_nginx() {
+  echo "Nginx n'est pas installé. Installation en cours..."
+  apt-get update
+  apt-get install -y nginx
+}
+
+# 1) Vérifier / installer Docker
 if ! command -v docker >/dev/null 2>&1; then
-  echo "Docker n'est pas installé. Installe-le avant de lancer ce script."
-  exit 1
+  install_docker
 fi
 if ! docker compose version >/dev/null 2>&1; then
-  echo "La commande 'docker compose' n'est pas disponible."
-  exit 1
-fi
-if ! command -v nginx >/dev/null 2>&1; then
-  echo "Nginx n'est pas installé. Installe-le avant de lancer ce script."
+  echo "La sous-commande 'docker compose' n'est pas disponible (version trop ancienne ?)."
+  echo "Vérifie l'installation de Docker Desktop / moteur Docker."
   exit 1
 fi
 
-echo "[1/5] Déploiement des configurations Nginx..."
+# 2) Vérifier / installer Nginx
+if ! command -v nginx >/dev/null 2>&1; then
+  install_nginx
+fi
+
+echo "[1/6] Déploiement des configurations Nginx..."
 
 NGINX_SITES_AVAILABLE="/etc/nginx/sites-available"
 NGINX_SITES_ENABLED="/etc/nginx/sites-enabled"
@@ -42,19 +66,16 @@ install_site() {
     return
   fi
 
-  # Copier (ou mettre à jour) dans sites-available
   cp "$src" "$dst"
 
-  # Créer le lien dans sites-enabled
   if [ -L "$NGINX_SITES_ENABLED/$name.conf" ]; then
     rm -f "$NGINX_SITES_ENABLED/$name.conf"
   fi
   ln -s "$dst" "$NGINX_SITES_ENABLED/$name.conf"
 }
 
-# Installer les vhosts dont tu disposes
 install_site "gitea"
-install_site "wordpress"      # contient déjà l'upstream wordpress_backend
+install_site "wordpress"
 install_site "nextcloud"
 install_site "syncthing"
 install_site "vaultwarden"
@@ -63,10 +84,10 @@ install_site "wiki"
 install_site "mattermost"
 install_site "grafana"
 
-echo "[2/5] Test de configuration Nginx..."
+echo "[2/6] Test de configuration Nginx..."
 nginx -t
 
-echo "[3/5] Démarrage des services Docker..."
+echo "[3/6] Démarrage des services Docker..."
 
 # Gitea
 if [ -d "$PROJECT_ROOT/gitea" ]; then
@@ -76,7 +97,7 @@ if [ -d "$PROJECT_ROOT/gitea" ]; then
   )
 fi
 
-# WordPress (load balancing côté Nginx entre 8081 et 8087)
+# WordPress (load balancing via Nginx)
 if [ -d "$PROJECT_ROOT/wordpress" ]; then
   (
     cd "$PROJECT_ROOT/wordpress"
@@ -100,7 +121,7 @@ if [ -d "$PROJECT_ROOT/syncthing" ]; then
   )
 fi
 
-# Trilium Notes
+# Trilium
 if [ -d "$PROJECT_ROOT/triliumnotes" ]; then
   (
     cd "$PROJECT_ROOT/triliumnotes"
@@ -124,7 +145,7 @@ if [ -d "$PROJECT_ROOT/wikijs" ]; then
   )
 fi
 
-# Mattermost (une instance, sans load balancing)
+# Mattermost
 if [ -d "$PROJECT_ROOT/mattermost" ]; then
   (
     cd "$PROJECT_ROOT/mattermost"
@@ -132,7 +153,7 @@ if [ -d "$PROJECT_ROOT/mattermost" ]; then
   )
 fi
 
-# Monitoring (Prometheus + Grafana + exporters)
+# Monitoring
 if [ -d "$PROJECT_ROOT/monitoring" ]; then
   (
     cd "$PROJECT_ROOT/monitoring"
@@ -148,7 +169,7 @@ if [ -d "$PROJECT_ROOT/joplin" ] && [ -f "$PROJECT_ROOT/joplin/docker-compose.ym
   )
 fi
 
-# Load testing (k6)
+# Loadtesting
 if [ -d "$PROJECT_ROOT/loadtesting" ]; then
   (
     cd "$PROJECT_ROOT/loadtesting"
@@ -156,14 +177,14 @@ if [ -d "$PROJECT_ROOT/loadtesting" ]; then
   )
 fi
 
-echo "[4/5] Rechargement de Nginx..."
-systemctl reload nginx
+echo "[4/6] Rechargement de Nginx..."
+systemctl reload nginx || service nginx reload
 
 DOMAIN="${DOMAIN_BASE:-tpdocker.istic.univ-rennes1.fr}"
 
-echo "[5/5] Déploiement terminé. Services accessibles via :"
+echo "[5/6] Récapitulatif des URLs :"
 echo "  - Gitea      : http://gitea.${DOMAIN}"
-echo "  - WordPress  : http://wordpress.${DOMAIN} (LB Nginx → 8081 & 8087)"
+echo "  - WordPress  : http://wordpress.${DOMAIN} (LB Nginx entre 8081 et 8087)"
 echo "  - Nextcloud  : http://nextcloud.${DOMAIN}"
 echo "  - Syncthing  : http://syncthing.${DOMAIN}"
 echo "  - Vaultwarden: http://vaultwarden.${DOMAIN}"
@@ -171,4 +192,6 @@ echo "  - Trilium    : http://triliumnotes.${DOMAIN}"
 echo "  - Wiki.js    : http://wiki.${DOMAIN}"
 echo "  - Mattermost : http://mattermost.${DOMAIN}"
 echo "  - Grafana    : http://grafana.${DOMAIN}"
+
+echo "[6/6] Déploiement terminé."
 
