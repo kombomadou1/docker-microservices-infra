@@ -13,20 +13,23 @@
         state: directory
         mode: "0755"
 
-    - name: Copier le docker-compose Mattermost par defaut sur la VM
+    - name: Copier le docker-compose.yml Mattermost
       ansible.builtin.copy:
         src: ./mattermost/docker-compose.yml
         dest: "{{ service_project_path }}/docker-compose.yml"
         mode: "0644"
 
-    - name: Copier la config nginx Mattermost (si necessaire)
+    - name: Copier le docker-compose.without-nginx.yml Mattermost
       ansible.builtin.copy:
-        src: ./mattermost/nginx/
-        dest: "{{ service_project_path }}/nginx/"
+        src: ./mattermost/docker-compose.without-nginx.yml
+        dest: "{{ service_project_path }}/docker-compose.without-nginx.yml"
         mode: "0644"
-      ignore_errors: true
 
-    - name: Deployer Mattermost avec Docker Compose v2
+    - name: Deployer Mattermost avec Docker Compose v2 (multiple files)
       community.docker.docker_compose_v2:
         project_src: "{{ service_project_path }}"
+        files:
+          - docker-compose.yml
+          - docker-compose.without-nginx.yml
         state: present
+ 
