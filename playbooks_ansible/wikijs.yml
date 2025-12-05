@@ -1,0 +1,25 @@
+---
+- name: Deployer Wiki.js
+  hosts: docker_hosts
+  become: true
+
+  vars:
+    service_project_path: /opt/docker_services/wikijs
+
+  tasks:
+    - name: Creer le dossier projet Wiki.js sur la VM
+      ansible.builtin.file:
+        path: "{{ service_project_path }}"
+        state: directory
+        mode: "0755"
+
+    - name: Copier le docker-compose Wiki.js sur la VM
+      ansible.builtin.copy:
+        src: ./wikijs/docker-compose.yml
+        dest: "{{ service_project_path }}/docker-compose.yml"
+        mode: "0644"
+
+    - name: Deployer Wiki.js avec Docker Compose v2
+      community.docker.docker_compose_v2:
+        project_src: "{{ service_project_path }}"
+        state: present
