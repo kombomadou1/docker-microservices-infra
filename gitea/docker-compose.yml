@@ -17,13 +17,12 @@ services:
     container_name: gitea
     depends_on:
       - db
-     
     restart: unless-stopped
     networks:
       - esir-net
     ports:
-      - "8083:3000"   # web UI 8083
-      - "2222:22"     # ssh for git (map to 2222 local)
+      - "${GITEA_HTTP_PORT:-8083}:3000"
+      - "${GITEA_SSH_PORT:-2222}:22"
     volumes:
       - ./data:/data
     environment:
@@ -31,17 +30,13 @@ services:
       - USER_GID=1000
       - GITEA__service__REQUIRE_SIGNIN_VIEW=true
       - GITEA__service__DISABLE_REGISTRATION=true
-     
-        # DB connection used by Gitea (host:port)
       - DB_TYPE=postgres
       - DB_HOST=db:5432
       - DB_NAME=giteadb
       - DB_USER=gitea
       - DB_PASSWD=gitea_password
-     
-        # Configurable server values (used by the installer or auto config)
-      - GITEA__server__DOMAIN=gitea.tpdocker.istic.univ-rennes1.fr
-      - GITEA__server__ROOT_URL=http://gitea.tpdocker.istic.univ-rennes1.fr/
+      - GITEA__server__DOMAIN=gitea.${DOMAIN_BASE}
+      - GITEA__server__ROOT_URL=http://gitea.${DOMAIN_BASE}/
       - GITEA__server__HTTP_PORT=3000
 
 networks:

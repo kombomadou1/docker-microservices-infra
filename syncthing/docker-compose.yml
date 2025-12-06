@@ -9,9 +9,9 @@ services:
       - PUID=1000
       - PGID=1000
     ports:
-      - "8384:8384"  # interface web
-      - "22000:22000" # sync TCP
-      - "21027:21027/udp" # local discovery
+      - "${SYNCTHING_HTTP_PORT:-8384}:8384"
+      - "${SYNCTHING_SYNC_TCP_PORT:-22000}:22000"
+      - "${SYNCTHING_DISCOVERY_UDP_PORT:-21027}:21027/udp"
     volumes:
       - ./config:/var/syncthing/config
       - ./data:/var/syncthing/data

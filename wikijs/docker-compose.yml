@@ -1,5 +1,4 @@
 services:
-
   db:
     image: postgres:15-alpine
     environment:
@@ -23,10 +22,11 @@ services:
       DB_USER: wikijs
       DB_PASS: wikijsrocks
       DB_NAME: wiki
-      APP_URL: "http://wiki.tpdocker.istic.univ-rennes1.fr"
+      APP_URL: "http://wiki.${DOMAIN_BASE}"
     restart: unless-stopped
     ports:
-      - "8082:3000"
+      - "${WIKI_HTTP_PORT:-8082}:3000"
 
 volumes:
   db-data:
+

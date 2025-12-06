@@ -5,13 +5,14 @@ services:
     restart: unless-stopped
     environment:
       ADMIN_TOKEN: "mydockerpass404"
-      DOMAIN: "https://vaultwarden.tpdocker.istic.univ-rennes1.fr"
+      DOMAIN: "https://vaultwarden.${DOMAIN_BASE}"
       WEBSOCKET_ENABLED: true
       SIGNUPS_ALLOWED: "true"
     volumes:
       - vw-data:/data
     ports:
-      - "4044:80"
+      - "${VAULTWARDEN_HTTP_PORT:-4044}:80"
 
 volumes:
   vw-data:
+
