@@ -15,7 +15,7 @@
 
     - name: Copier le docker-compose Vaultwarden sur la VM
       ansible.builtin.copy:
-        src: ./vaultwarden/docker-compose.yml
+        src: "{{ playbook_dir }}/../vaultwarden/docker-compose.yml"
         dest: "{{ service_project_path }}/docker-compose.yml"
         mode: "0644"
 

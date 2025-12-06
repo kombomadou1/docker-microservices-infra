@@ -14,5 +14,5 @@ services:
 
 networks:
   esir-net:
-    external: true
+    driver: bridge
 

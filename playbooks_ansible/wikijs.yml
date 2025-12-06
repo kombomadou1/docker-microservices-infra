@@ -15,7 +15,7 @@
 
     - name: Copier le docker-compose Wiki.js sur la VM
       ansible.builtin.copy:
-        src: ./wikijs/docker-compose.yml
+        src: "{{ playbook_dir }}/../wikijs/docker-compose.yml"
         dest: "{{ service_project_path }}/docker-compose.yml"
         mode: "0644"
 

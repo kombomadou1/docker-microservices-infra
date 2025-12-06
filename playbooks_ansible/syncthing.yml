@@ -15,7 +15,7 @@
 
     - name: Copier le docker-compose Syncthing sur la VM
       ansible.builtin.copy:
-        src: ./syncthing/docker-compose.yml
+        src: "{{ playbook_dir }}/../syncthing/docker-compose.yml"
         dest: "{{ service_project_path }}/docker-compose.yml"
         mode: "0644"
 

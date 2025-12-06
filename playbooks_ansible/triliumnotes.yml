@@ -15,7 +15,7 @@
 
     - name: Copier le docker-compose Trilium sur la VM
       ansible.builtin.copy:
-        src: ./triliumnotes/docker-compose.yml
+        src: "{{ playbook_dir }}/../triliumnotes/docker-compose.yml"
         dest: "{{ service_project_path }}/docker-compose.yml"
         mode: "0644"
 
