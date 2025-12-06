@@ -15,13 +15,13 @@
 
     - name: Copier le docker-compose Loadtesting sur la VM
       ansible.builtin.copy:
-        src: ./loadtesting/docker-compose.yml
+        src: "{{ playbook_dir }}/../loadtesting/docker-compose.yml"
         dest: "{{ service_project_path }}/docker-compose.yml"
         mode: "0644"
 
     - name: Copier les scripts k6
       ansible.builtin.copy:
-        src: ./loadtesting/k6/
+        src: "{{ playbook_dir }}/../loadtesting/k6/"
         dest: "{{ service_project_path }}/k6/"
         mode: "0644"
       ignore_errors: true

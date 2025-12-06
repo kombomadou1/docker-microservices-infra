@@ -15,7 +15,7 @@
 
     - name: Copier le docker-compose Nextcloud sur la VM
       ansible.builtin.copy:
-        src: ./nextcloud/docker-compose.yml
+        src: "{{ playbook_dir }}/../nextcloud/docker-compose.yml"
         dest: "{{ service_project_path }}/docker-compose.yml"
         mode: "0644"
 

@@ -24,33 +24,14 @@
         msg: "Docker Compose v2 (commande 'docker compose') n'est pas disponible sur la VM."
       when: docker_compose_check.rc != 0
 
-  tasks:
-    - name: Deployer Wiki.js
-      ansible.builtin.import_playbook: playbooks_ansible/wikijs.yml
+- import_playbook: playbooks_ansible/wikijs.yml
+- import_playbook: playbooks_ansible/gitea.yml
+- import_playbook: playbooks_ansible/vaultwarden.yml
+- import_playbook: playbooks_ansible/nextcloud.yml
+- import_playbook: playbooks_ansible/wordpress.yml
+- import_playbook: playbooks_ansible/mattermost.yml
+- import_playbook: playbooks_ansible/monitoring.yml
+- import_playbook: playbooks_ansible/syncthing.yml
+- import_playbook: playbooks_ansible/triliumnotes.yml
+- import_playbook: playbooks_ansible/loadtesting.yml
 
-    - name: Deployer Gitea
-      ansible.builtin.import_playbook: playbooks_ansible/gitea.yml
-
-    - name: Deployer Vaultwarden
-      ansible.builtin.import_playbook: playbooks_ansible/vaultwarden.yml
-
-    - name: Deployer Nextcloud
-      ansible.builtin.import_playbook: playbooks_ansible/nextcloud.yml
-
-    - name: Deployer Wordpress
-      ansible.builtin.import_playbook: playbooks_ansible/wordpress.yml
-
-    - name: Deployer Mattermost
-      ansible.builtin.import_playbook: playbooks_ansible/mattermost.yml
-
-    - name: Deployer Monitoring
-      ansible.builtin.import_playbook: playbooks_ansible/monitoring.yml
-
-    - name: Deployer Syncthing
-      ansible.builtin.import_playbook: playbooks_ansible/syncthing.yml
-
-    - name: Deployer Trilium Notes
-      ansible.builtin.import_playbook: playbooks_ansible/triliumnotes.yml
-
-    - name: Deployer Loadtesting
-      ansible.builtin.import_playbook: playbooks_ansible/loadtesting.yml

@@ -15,15 +15,22 @@
 
     - name: Copier le docker-compose.yml Mattermost
       ansible.builtin.copy:
-        src: ./mattermost/docker-compose.yml
+        src: "{{ playbook_dir }}/../mattermost/docker-compose.yml"
         dest: "{{ service_project_path }}/docker-compose.yml"
         mode: "0644"
 
     - name: Copier le docker-compose.without-nginx.yml Mattermost
       ansible.builtin.copy:
-        src: ./mattermost/docker-compose.without-nginx.yml
+        src: "{{ playbook_dir }}/../mattermost/docker-compose.without-nginx.yml"
         dest: "{{ service_project_path }}/docker-compose.without-nginx.yml"
         mode: "0644"
+
+    - name: Copier le fichier .env Mattermost sur la VM
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../mattermost/.env"
+        dest: "{{ service_project_path }}/.env"
+        mode: "0644"
+
 
     - name: Deployer Mattermost avec Docker Compose v2 (multiple files)
       community.docker.docker_compose_v2:

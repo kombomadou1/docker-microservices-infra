@@ -6,14 +6,14 @@ services:
     networks:
       - esir-net
     ports:
-      - "8180:8080"      
+      - "8180:8080"
     volumes:
-      - ./data:/home/node/trilium-data  
+      - ./data:/home/node/trilium-data
     environment:
       - APP_BASE_URL=http://trilium.tpdocker.istic.univ-rennes1.fr
 
 
 networks:
   esir-net:
-    external: true
+    driver: bridge
 
