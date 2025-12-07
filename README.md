@@ -1,113 +1,7 @@
-
-***
-
-## Arborescence du projet
-
-```text
-esir-as-a-service-2025
-├── README.md
-├── clean-services.sh
-├── configs
-│   ├── http
-│   │   ├── gitea.conf
-│   │   ├── grafana.conf
-│   │   ├── mattermost.conf
-│   │   ├── nextcloud.conf
-│   │   ├── syncthing.conf
-│   │   ├── triliumnotes.conf
-│   │   ├── vaultwarden.conf
-│   │   ├── wiki.conf
-│   │   └── wordpress.conf
-│   └── https
-│       ├── gitea.conf
-│       ├── grafana.conf
-│       ├── mattermost.conf
-│       ├── nextcloud.conf
-│       ├── syncthing.conf
-│       ├── triliumnotes.conf
-│       ├── vaultwarden.conf
-│       ├── wiki.conf
-│       └── wordpress.conf
-├── deploy-all.yml
-├── deploy-services.sh
-├── deploy-without-nginx.sh
-├── docs
-├── gitea
-│   ├── data
-│   │   ├── git
-│   │   └── gitea
-│   ├── db
-│   └── docker-compose.yml
-├── inventory.ini
-├── joplin
-│   └── db
-├── loadtesting
-│   ├── docker-compose.yml
-│   └── k6
-│       └── script.js
-├── mattermost
-│   ├── contrib
-│   │   └── systemd
-│   │       ├── certbot.service
-│   │       └── certbot.timer
-│   ├── docker-compose.nginx.yml
-│   ├── docker-compose.without-nginx.yml
-│   ├── docker-compose.yml
-│   ├── env.example
-│   ├── nginx
-│   │   ├── conf.d
-│   │   │   └── default.conf
-│   │   └── dhparams4096.pem
-│   ├── scripts
-│   │   ├── UPGRADE.md
-│   │   ├── issue-certificate.sh
-│   │   └── upgrade-postgres.sh
-│   └── volumes
-│       ├── app
-│       ├── db
-│       └── web
-├── monitoring
-│   ├── docker-compose.yml
-│   └── prometheus
-│       └── prometheus.yml
-├── nextcloud
-│   └── docker-compose.yml
-├── playbooks_ansible
-│   ├── gitea.yml
-│   ├── loadtesting.yml
-│   ├── mattermost.yml
-│   ├── monitoring.yml
-│   ├── nextcloud.yml
-│   ├── syncthing.yml
-│   ├── triliumnotes.yml
-│   ├── vaultwarden.yml
-│   ├── wikijs.yml
-│   └── wordpress.yml
-├── syncthing
-│   ├── config
-│   ├── data
-│   └── docker-compose.yml
-├── triliumnotes
-│   ├── data
-│   └── docker-compose.yml
-├── vaultwarden
-│   ├── docker-compose.yml
-│   └── vw-data
-├── wikijs
-│   └── docker-compose.yml
-└── wordpress
-    └── docker-compose.yml
-```
-
-***
-
-
-```markdown
 # ESIR-as-a-Service-2025
 
 Plateforme de services auto‑hébergés pour les projets ESIR : forge Git, wiki, chat, cloud de fichiers, gestion de mots de passe et monitoring, déployés sur une VM Ubuntu via Docker / Nginx / Ansible.
 
----
 
 ## Getting started
 
@@ -376,20 +270,6 @@ Cette partie peut être enrichie pour :
 
   Adapter les ports dans `.env` et relancer le script de déploiement.
 
-- **Mattermost ne démarre pas**
-
-  Vérifier les logs :
-
-  ```
-  docker logs mattermost-postgres-1 | tail -50
-  docker logs mattermost-mattermost-1 | tail -50
-  ```
-
-  S’assurer de la cohérence entre `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` et `MM_SQLSETTINGS_DATASOURCE`.
-
-- **Service accessible en `curl` sur la VM mais pas depuis l’extérieur**
-
-  Vérifier les règles de pare‑feu de la VM / hyperviseur / réseau école, ainsi que la configuration Nginx en mode proxy.
 
 ---
 
