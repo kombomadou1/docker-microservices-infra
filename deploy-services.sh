@@ -17,6 +17,12 @@ else
   log_warn "Aucun fichier .env trouvé, utilisation des valeurs par défaut des docker-compose."
 fi
 
+# Vérifier que DOMAIN_BASE est défini
+if [ -z "${DOMAIN_BASE:-}" ]; then
+  log_error "La variable DOMAIN_BASE n'est pas définie dans .env (ex: DOMAIN_BASE=domvm.istic.univ-rennes1.fr)."
+  exit 1
+fi
+
 install_docker() {
   log_info "Installation de Docker (Ubuntu/Debian)..."
   apt-get update -y
@@ -27,8 +33,8 @@ install_docker() {
   chmod a+r /etc/apt/keyrings/docker.gpg
 
   echo \
-    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-    $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
+"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+$(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
 
   apt-get update -y
   apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
@@ -61,7 +67,7 @@ else
   log_info "Nginx déjà installé."
 fi
 
-# 3) Créer le réseau Docker externe si nécessaire (pour gitea, syncthing, trilium, etc.)
+# 3) Créer le réseau Docker externe si nécessaire
 if ! docker network ls | grep -q "esir-net"; then
   log_info "Réseau Docker 'esir-net' absent, création..."
   docker network create esir-net
@@ -70,11 +76,12 @@ else
   log_info "Réseau Docker 'esir-net' déjà présent."
 fi
 
-log_info "[1/6] Déploiement des configurations Nginx..."
+# 4) Déploiement des configurations Nginx (HTTP uniquement)
+log_info "[1/6] Déploiement des configurations Nginx (HTTP)..."
 
+NGINX_SRC_DIR="$PROJECT_ROOT/configs/http"
 NGINX_SITES_AVAILABLE="/etc/nginx/sites-available"
 NGINX_SITES_ENABLED="/etc/nginx/sites-enabled"
-NGINX_SRC_DIR="$PROJECT_ROOT/nginx"
 
 mkdir -p "$NGINX_SITES_AVAILABLE" "$NGINX_SITES_ENABLED"
 
@@ -88,17 +95,21 @@ install_site() {
     return
   fi
 
-  cp "$src" "$dst"
+  # On peut utiliser envsubst si tes confs contiennent ${DOMAIN_BASE} ou des ports
+  # sinon un simple cp suffit
+  envsubst '${DOMAIN_BASE} ${GITEA_HTTP_PORT} ${WORDPRESS_HTTP1_PORT} ${WORDPRESS_HTTP2_PORT} ${NEXTCLOUD_HTTP_PORT} ${SYNCTHING_HTTP_PORT} ${TRILIUM_HTTP_PORT} ${VAULTWARDEN_HTTP_PORT} ${WIKI_HTTP_PORT} ${MATTERMOST_APP_PORT} ${GRAFANA_HTTP_PORT}' \
+    < "$src" > "$dst"
+
   if [ -L "$NGINX_SITES_ENABLED/$name.conf" ]; then
     rm -f "$NGINX_SITES_ENABLED/$name.conf"
   fi
   ln -s "$dst" "$NGINX_SITES_ENABLED/$name.conf"
-  log_info "VHost Nginx '$name' installé et activé."
+
+  log_info "VHost Nginx '$name' installé et activé (HTTP)."
 }
 
-# Installer les vhosts (conf déjà présentes dans ton projet)
 install_site "gitea"
-install_site "wordpress"      # contient l'upstream wordpress_backend (8081 & 8087)
+install_site "wordpress"
 install_site "nextcloud"
 install_site "syncthing"
 install_site "vaultwarden"
@@ -115,6 +126,7 @@ else
   exit 1
 fi
 
+# 5) Démarrage des services Docker
 log_info "[3/6] Démarrage des services Docker..."
 
 start_compose() {
@@ -135,28 +147,15 @@ start_compose() {
   fi
 }
 
-# Gitea
 start_compose "gitea"
-
-# WordPress (2 instances + MariaDB, load balancing via Nginx)
-start_compose "wordpress"
-
-# Nextcloud
+start_compose "wordpress"      # WordPress1 + WordPress2 + MariaDB
 start_compose "nextcloud"
-
-# Syncthing
 start_compose "syncthing"
-
-# Trilium
 start_compose "triliumnotes"
-
-# Vaultwarden
 start_compose "vaultwarden"
-
-# Wiki.js
 start_compose "wikijs"
 
-# Mattermost (docker-compose.yml + docker-compose.without-nginx.yml)
+# Mattermost (2 fichiers compose)
 if [ -d "$PROJECT_ROOT/mattermost" ]; then
   log_info "Démarrage du service 'mattermost'..."
   (
@@ -169,29 +168,22 @@ if [ -d "$PROJECT_ROOT/mattermost" ]; then
   )
 fi
 
-# Monitoring
 start_compose "monitoring"
-
-# Joplin (si présent)
-if [ -d "$PROJECT_ROOT/joplin" ] && [ -f "$PROJECT_ROOT/joplin/docker-compose.yml" ]; then
-  start_compose "joplin"
-fi
-
-# Loadtesting
 start_compose "loadtesting"
 
+# 6) Rechargement Nginx
 log_info "[4/6] Rechargement de Nginx..."
 if systemctl reload nginx 2>/dev/null || service nginx reload 2>/dev/null; then
   log_info "Nginx rechargé avec succès."
 else
-  log_error "Impossible de recharger Nginx, vérifie le service."
+  log_warn "Impossible de recharger Nginx, vérifie le service manuellement."
 fi
 
-DOMAIN="${DOMAIN_BASE:-tpdocker.istic.univ-rennes1.fr}"
+DOMAIN="$DOMAIN_BASE"
 
-log_info "[5/6] Récapitulatif des URLs exposées via reverse proxy / load balancing :"
+log_info "[5/6] Récapitulatif des URLs exposées :"
 echo "  - Gitea      : http://gitea.${DOMAIN}"
-echo "  - WordPress  : http://wordpress.${DOMAIN} (load balancing Nginx → 8081 & 8087)"
+echo "  - WordPress  : http://wordpress.${DOMAIN} (LB Nginx → ${WORDPRESS_HTTP1_PORT:-8081} & ${WORDPRESS_HTTP2_PORT:-8087})"
 echo "  - Nextcloud  : http://nextcloud.${DOMAIN}"
 echo "  - Syncthing  : http://syncthing.${DOMAIN}"
 echo "  - Vaultwarden: http://vaultwarden.${DOMAIN}"
@@ -201,4 +193,5 @@ echo "  - Mattermost : http://mattermost.${DOMAIN}"
 echo "  - Grafana    : http://grafana.${DOMAIN}"
 
 log_info "[6/6] Déploiement terminé."
+
 
