@@ -87,6 +87,16 @@ Chaque service est isolé dans son dossier avec un `docker-compose.yml` et des v
   Conteneur k6 exécutant un script de test de charge (`loadtesting/k6/script.js`).
 
 ---
+## Lien du site web de presentation de nos services
+
+- https://tpdocker.istic.univ-rennes1.fr
+
+Ce site liste tous les services que nous avons deployé.
+```
+username : tpdocker
+password : boomerboom
+```
+---
 
 ## Requirements
 
