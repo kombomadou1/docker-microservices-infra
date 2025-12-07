@@ -364,7 +364,7 @@ Cette partie peut être enrichie pour :
 #### Content management: `Wordpress`
 
 ```
-username: kombo
+username: admin
 password vm kombo: adminpasswordpress123
 ```
 #### Instant messsagin / Chat: ` Mattermost`:
