@@ -361,6 +361,13 @@ Cette partie peut être enrichie pour :
 # LES ACCES AUX SERVICES DEPLOYES
 
 ---
+#### auth_basic nginx:
+
+```
+username: tpdocker
+password vm kombo: boomerboom
+```
+
 #### Content management: `Wordpress`
 
 ```
