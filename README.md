@@ -236,7 +236,7 @@ Attention : les volumes définis dans les `docker-compose` sont supprimés, ce q
 
 ---
 
-## Ansible
+# Ansible
 
 Le dossier `playbooks_ansible/` contient un playbook par service :
 
@@ -244,12 +244,98 @@ Le dossier `playbooks_ansible/` contient un playbook par service :
   `triliumnotes.yml`, `vaultwarden.yml`, `wikijs.yml`,
   `mattermost.yml`, `monitoring.yml`, `loadtesting.yml`.
 
-`inventory.ini` fournit un inventaire d’exemple et `deploy-all.yml` un squelette de playbook global.
+Le fichier `inventory.ini` fournit l'inventaire des VMs, et `deploy-all.yml` est le playbook principal qui orchestre le déploiement de tous les services.
 
-Exemple de commande (à adapter) :
+## 1. Installation d'Ansible (poste de contrôle)
 
+Sur le poste de contrôle (ta machine locale ou une VM dédiée) :
+
+```bash
+sudo apt update
+sudo apt install ansible
+ansible --version
 ```
+
+## 2. Configuration de l'inventaire
+
+À la racine du projet, adapter le fichier `inventory.ini` pour y indiquer les adresses IP ou noms de domaine de vos VMs, les utilisateurs, et les groupes d'hôtes. Un exemple typique :
+
+```ini
+[vm1]
+vm-tpdocker1 ansible_host=tpdocker1.istic.univ-rennes1.fr ansible_user=makombo ansible_ssh_private_key_file=~/.ssh/id_rsa
+
+[vm2]
+vm-tpdocker2 ansible_host=tpdocker.istic.univ-rennes1.fr ansible_user=kbehi ansible_ssh_private_key_file=~/.ssh/id_rsa
+```
+
+## 3. Vérifier que Ansible peut atteindre les VMs
+
+Tester la connexion SSH vers toutes les VMs :
+
+```bash
+ansible all -i inventory.ini -m ping
+```
+
+Le résultat doit être `SUCCESS` pour toutes les VMs.
+
+## 4. Préparation du fichier `.env`
+
+À la racine du projet, dupliquer `.env_example` en `.env` et adapter les paramètres selon votre environnement :
+
+```bash
+cp .env_example .env
+# puis éditer .env pour adapter les valeurs (ports, mots de passe, URLs, etc.)
+```
+
+Ce fichier `.env` sera utilisé par l'ensemble des services Docker sur les VMs.
+
+## 5. Lancer le déploiement complet
+
+Une fois les configurations ajustées, lancer le playbook principal depuis la racine du projet :
+
+```bash
+ansible-playbook -i inventory.ini deploy-all.yml
+```
+
+Ansible exécutera automatiquement les étapes suivantes sur les VMs respectives :
+
+- **Vérification des prérequis** : vérifie que Docker et Docker Compose v2 sont installés sur chaque VM. Si l'un des deux est absent, le déploiement s'arrête avec un message d'erreur clair pour corriger le problème.
+- **Copie du fichier `.env`** : le fichier `.env_example` est copié en `.env` à la racine distante (`/opt/docker_services/.env`).
+- **Création des répertoires de projet** : pour chaque service, Ansible crée un dossier dédié (par exemple `/opt/docker_services/gitea/`) sur la VM cible.
+- **Copie des fichiers docker-compose.yml** : chaque fichier de composition est transféré depuis le dépôt vers le répertoire correspondant sur la VM.
+- **Déploiement des services** : lancement de tous les conteneurs via `docker compose` (v2 minimum) pour chaque service.
+
+Le dépôt contient un fichier principal `deploy-all.yml` qui sert de point d'entrée. Ce fichier référence et exécute tous les playbooks du dossier `playbooks_ansible/`. Chaque playbook se charge de déployer un service spécifique.
+
+## 6. Déployer un seul service (optionnel)
+
+Si tu veux déployer ou mettre à jour un service en particulier sans tout relancer :
+
+```bash
 ansible-playbook -i inventory.ini playbooks_ansible/gitea.yml
+```
+
+ou pour WordPress :
+
+```bash
+ansible-playbook -i inventory.ini playbooks_ansible/wordpress.yml
+```
+
+## 7. Vérification après le déploiement
+
+Une fois le playbook terminé sans erreur, vérifier l'état de l'infrastructure depuis l'une des VMs :
+
+```bash
+docker ps
+```
+
+Cette commande affiche tous les conteneurs en cours d'exécution. Tu peux aussi vérifier les services spécifiques, par exemple pour Gitea :
+
+```bash
+docker ps | grep gitea
+```
+
+et tester l'accès aux services via les ports ou URLs définis dans les `docker-compose.yml`.
 ```
 
 Cette partie peut être enrichie pour :
