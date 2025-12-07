@@ -1,93 +1,403 @@
-# ESIR-as-a-Service-2025
-
-
-
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://gitlab2.istic.univ-rennes1.fr/esir-as-a-service-2025-docker/esir-as-a-service-2025.git
-git branch -M main
-git push -uf origin main
-```
-
-## Integrate with your tools
-
-- [ ] [Set up project integrations](https://gitlab2.istic.univ-rennes1.fr/esir-as-a-service-2025-docker/esir-as-a-service-2025/-/settings/integrations)
-
-## Collaborate with your team
-
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
 
 ***
 
-# Editing this README
+## Arborescence du projet
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+```text
+esir-as-a-service-2025
+├── README.md
+├── clean-services.sh
+├── configs
+│   ├── http
+│   │   ├── gitea.conf
+│   │   ├── grafana.conf
+│   │   ├── mattermost.conf
+│   │   ├── nextcloud.conf
+│   │   ├── syncthing.conf
+│   │   ├── triliumnotes.conf
+│   │   ├── vaultwarden.conf
+│   │   ├── wiki.conf
+│   │   └── wordpress.conf
+│   └── https
+│       ├── gitea.conf
+│       ├── grafana.conf
+│       ├── mattermost.conf
+│       ├── nextcloud.conf
+│       ├── syncthing.conf
+│       ├── triliumnotes.conf
+│       ├── vaultwarden.conf
+│       ├── wiki.conf
+│       └── wordpress.conf
+├── deploy-all.yml
+├── deploy-services.sh
+├── deploy-without-nginx.sh
+├── docs
+├── gitea
+│   ├── data
+│   │   ├── git
+│   │   └── gitea
+│   ├── db
+│   └── docker-compose.yml
+├── inventory.ini
+├── joplin
+│   └── db
+├── loadtesting
+│   ├── docker-compose.yml
+│   └── k6
+│       └── script.js
+├── mattermost
+│   ├── contrib
+│   │   └── systemd
+│   │       ├── certbot.service
+│   │       └── certbot.timer
+│   ├── docker-compose.nginx.yml
+│   ├── docker-compose.without-nginx.yml
+│   ├── docker-compose.yml
+│   ├── env.example
+│   ├── nginx
+│   │   ├── conf.d
+│   │   │   └── default.conf
+│   │   └── dhparams4096.pem
+│   ├── scripts
+│   │   ├── UPGRADE.md
+│   │   ├── issue-certificate.sh
+│   │   └── upgrade-postgres.sh
+│   └── volumes
+│       ├── app
+│       ├── db
+│       └── web
+├── monitoring
+│   ├── docker-compose.yml
+│   └── prometheus
+│       └── prometheus.yml
+├── nextcloud
+│   └── docker-compose.yml
+├── playbooks_ansible
+│   ├── gitea.yml
+│   ├── loadtesting.yml
+│   ├── mattermost.yml
+│   ├── monitoring.yml
+│   ├── nextcloud.yml
+│   ├── syncthing.yml
+│   ├── triliumnotes.yml
+│   ├── vaultwarden.yml
+│   ├── wikijs.yml
+│   └── wordpress.yml
+├── syncthing
+│   ├── config
+│   ├── data
+│   └── docker-compose.yml
+├── triliumnotes
+│   ├── data
+│   └── docker-compose.yml
+├── vaultwarden
+│   ├── docker-compose.yml
+│   └── vw-data
+├── wikijs
+│   └── docker-compose.yml
+└── wordpress
+    └── docker-compose.yml
+```
 
-## Suggestions for a good README
+***
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
 
-## Name
-Choose a self-explaining name for your project.
+```markdown
+# ESIR-as-a-Service-2025
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+Plateforme de services auto‑hébergés pour les projets ESIR : forge Git, wiki, chat, cloud de fichiers, gestion de mots de passe et monitoring, déployés sur une VM Ubuntu via Docker / Nginx / Ansible.
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+---
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+## Getting started
+
+Ce dépôt contient tout le nécessaire pour :
+
+- déployer une stack complète de services en Docker,
+- soit en accès direct par IP:PORT (sans reverse proxy),
+- soit derrière Nginx via des sous‑domaines HTTP/HTTPS,
+- provisionner ou rejouer le déploiement via Ansible.
+
+### Cloner le projet
+
+```
+git clone https://gitlab2.istic.univ-rennes1.fr/esir-as-a-service-2025-docker/esir-as-a-service-2025.git
+cd esir-as-a-service-2025
+```
+
+---
+
+## Project structure
+
+Vue d’ensemble de l’arborescence :
+
+```
+.
+├── README.md
+├── deploy-without-nginx.sh   # Déploiement Docker sans reverse proxy (IP:PORT)
+├── deploy-services.sh        # Déploiement Docker avec Nginx (vhosts http/https)
+├── clean-services.sh         # Arrêt + nettoyage complet des services et vhosts
+├── configs/                  # Configurations Nginx (HTTP/HTTPS)
+├── gitea/                    # Forge Git (Gitea)
+├── wordpress/                # WordPress (2 instances + MariaDB)
+├── nextcloud/                # Cloud de fichiers (Nextcloud)
+├── syncthing/                # Syncthing (sync P2P)
+├── triliumnotes/             # Trilium Notes (base de connaissances)
+├── vaultwarden/              # Vaultwarden (mots de passe)
+├── wikijs/                   # Wiki.js (wiki projet)
+├── mattermost/               # Mattermost + Postgres + Nginx local
+├── monitoring/               # Prometheus, Node Exporter, cAdvisor, Grafana
+├── loadtesting/              # k6 pour tests de charge
+├── playbooks_ansible/        # Playbooks Ansible par service
+├── deploy-all.yml            # Playbook Ansible global (squelette)
+└── inventory.ini             # Inventaire Ansible exemple
+```
+
+---
+
+## Services
+
+Chaque service est isolé dans son dossier avec un `docker-compose.yml` et des volumes de données.
+
+- **Gitea (`gitea/`)**  
+  Forge Git légère : dépôts de code, issues, pull requests, gestion d’utilisateurs.
+
+- **WordPress (`wordpress/`)**  
+  Deux instances WordPress (WordPress1 / WordPress2) + MariaDB. En mode avec Nginx, un vhost agit comme load‑balancer HTTP.
+
+- **Nextcloud (`nextcloud/`)**  
+  Cloud de fichiers (WebDAV, clients desktop/mobile), partage de documents et extensions (apps Nextcloud).
+
+- **Syncthing (`syncthing/`)**  
+  Synchronisation de dossiers en pair‑à‑pair, avec interface web de gestion.
+
+- **Trilium Notes (`triliumnotes/`)**  
+  Base de connaissances et prise de notes hiérarchique.
+
+- **Vaultwarden (`vaultwarden/`)**  
+  Gestionnaire de mots de passe compatible Bitwarden (serveur auto‑hébergé).
+
+- **Wiki.js (`wikijs/`)**  
+  Wiki moderne (Markdown, WYSIWYG, rôles) pour la documentation du projet.
+
+- **Mattermost (`mattermost/`)**  
+  Messagerie d’équipe type Slack : salons, messages directs, intégrations.
+
+- **Monitoring (`monitoring/`)**  
+  - Prometheus : collecte des métriques de la VM et des conteneurs.  
+  - Node Exporter : métriques système (CPU, RAM, disque).  
+  - cAdvisor : métriques Docker.  
+  - Grafana : visualisation via dashboards.
+
+- **Load testing (`loadtesting/`)**  
+  Conteneur k6 exécutant un script de test de charge (`loadtesting/k6/script.js`).
+
+---
+
+## Requirements
+
+- VM Ubuntu Server (22.04+ recommandé).
+- Accès `sudo`.
+- Ports réseau ouverts vers les services ou vers Nginx (selon le mode).
+- Git installé.
+
+---
+
+## Configuration
+
+### Fichier `.env`
+
+Un fichier `.env` à la racine centralise :
+
+- `DOMAIN_BASE` : domaine principal (ex. `tpdocker.istic.univ-rennes1.fr`).
+- Ports exposés pour chaque service (HTTP, HTTPS le cas échéant).
+- Variables Mattermost / Postgres (`POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `MM_SQLSETTINGS_DATASOURCE`).
+- Autres options propres aux services.
+
+Adapter `.env` avant le premier déploiement :
+
+```
+cp env.example .env    # si présent
+nano .env
+```
+
+Vérifier les ports déjà utilisés :
+
+```
+sudo ss -lnt
+```
+
+---
 
 ## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+### 0. Rendre les scripts exécutables
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+```
+chmod +x deploy-without-nginx.sh
+chmod +x deploy-services.sh
+chmod +x clean-services.sh
+```
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+### 1. Mode sans Nginx (accès IP:PORT)
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+Ce mode publie chaque service directement sur un port de la VM.
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+```
+cd esir-as-a-service-2025
+sudo ./deploy-without-nginx.sh
+```
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+Le script :
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+1. Charge `.env`.
+2. Installe Docker + `docker compose` si nécessaire.
+3. Crée le réseau Docker `esir-net`.
+4. Adapte les URLs pour un accès direct :
+   - Trilium : `APP_BASE_URL = http://VM_IP:TRILIUM_HTTP_PORT`
+   - Vaultwarden : `DOMAIN = http://VM_IP:VAULTWARDEN_HTTP_PORT`
+5. Corrige un cas connu sur le volume WordPress (`wp-content/themes`).
+6. Lance les services via `docker compose up -d` dans :
+   `gitea`, `wordpress`, `nextcloud`, `syncthing`, `triliumnotes`,
+   `vaultwarden`, `wikijs`, `mattermost`, `monitoring`, `loadtesting`.
+7. Affiche un récapitulatif des URLs, par ex. :
 
-## License
-For open source projects, say how it is licensed.
+- `http://IP_VM:8083` → Gitea  
+- `http://IP_VM:8081` → WordPress1  
+- `http://IP_VM:8087` → WordPress2  
+- `http://IP_VM:8080` → Nextcloud  
+- `http://IP_VM:<SYNCTHING_HTTP_PORT>` → Syncthing  
+- `http://IP_VM:<TRILIUM_HTTP_PORT>` → Trilium  
+- `http://IP_VM:<VAULTWARDEN_HTTP_PORT>` → Vaultwarden  
+- `http://IP_VM:8082` → Wiki.js  
+- `http://IP_VM:<MATTERMOST_APP_PORT>` → Mattermost  
+- `http://IP_VM:<PROMETHEUS_HTTP_PORT>` → Prometheus  
+- `http://IP_VM:3000` → Grafana  
+
+Exemple de test rapide depuis la VM :
+
+```
+curl -I http://localhost:8083    # Gitea
+curl -I http://localhost:8080    # Nextcloud
+```
+
+### 2. Mode avec Nginx (reverse proxy)
+
+Ce mode expose les services via Nginx en utilisant `DOMAIN_BASE` et les fichiers de `configs/http` et `configs/https`.
+
+```
+cd esir-as-a-service-2025
+sudo ./deploy-services.sh
+```
+
+Le script :
+
+1. Charge `.env`.
+2. Installe Docker, `docker compose` et Nginx si besoin.
+3. Crée le réseau `esir-net`.
+4. Copie les vhosts depuis `configs/http/` vers `/etc/nginx/sites-available/` et crée les liens dans `/etc/nginx/sites-enabled/`.
+5. Vérifie la configuration (`nginx -t`) et recharge Nginx.
+6. Lance tous les services Docker.
+
+Exemples de vhosts HTTP :
+
+- `http://gitea.DOMAIN_BASE` → Gitea  
+- `http://wordpress.DOMAIN_BASE` → WordPress  
+- `http://nextcloud.DOMAIN_BASE` → Nextcloud  
+- `http://syncthing.DOMAIN_BASE` → Syncthing  
+- `http://triliumnotes.DOMAIN_BASE` → Trilium  
+- `http://vaultwarden.DOMAIN_BASE` → Vaultwarden  
+- `http://wiki.DOMAIN_BASE` → Wiki.js  
+- `http://mattermost.DOMAIN_BASE` → Mattermost  
+- `http://grafana.DOMAIN_BASE` → Grafana  
+
+Les fichiers `configs/https/*.conf` sont prêts pour activer le HTTPS avec des certificats (ex. Let’s Encrypt, via Certbot ou scripts de `mattermost/scripts`).
+
+---
+
+## Usage – arrêt et nettoyage
+
+Pour arrêter et nettoyer tous les services, ainsi que le réseau Docker et les vhosts Nginx du projet :
+
+```
+cd esir-as-a-service-2025
+sudo ./clean-services.sh
+```
+
+Ce script :
+
+1. Charge `.env` si présent.
+2. Fait un `docker compose down --volumes --remove-orphans` dans :
+   `gitea`, `wordpress`, `nextcloud`, `syncthing`, `triliumnotes`,
+   `vaultwarden`, `wikijs`, `monitoring`, `joplin`, `loadtesting`,
+   et `mattermost` (avec `docker-compose.yml` + `docker-compose.without-nginx.yml`).
+3. Supprime le réseau Docker `esir-net` si possible.
+4. Supprime les vhosts du projet dans :
+   `/etc/nginx/sites-available` et `/etc/nginx/sites-enabled` pour
+   `gitea`, `wordpress`, `nextcloud`, `syncthing`, `vaultwarden`,
+   `triliumnotes`, `wiki`, `mattermost`, `grafana` (avec vérification qu’ils viennent bien du projet).
+5. Recharge Nginx si installé et configuration valide.
+
+Attention : les volumes définis dans les `docker-compose` sont supprimés, ce qui efface les données (bases, fichiers, configs internes).
+
+---
+
+## Ansible
+
+Le dossier `playbooks_ansible/` contient un playbook par service :
+
+- `gitea.yml`, `wordpress.yml`, `nextcloud.yml`, `syncthing.yml`,
+  `triliumnotes.yml`, `vaultwarden.yml`, `wikijs.yml`,
+  `mattermost.yml`, `monitoring.yml`, `loadtesting.yml`.
+
+`inventory.ini` fournit un inventaire d’exemple et `deploy-all.yml` un squelette de playbook global.
+
+Exemple de commande (à adapter) :
+
+```
+ansible-playbook -i inventory.ini playbooks_ansible/gitea.yml
+```
+
+Cette partie peut être enrichie pour :
+
+- préparer la VM (paquets, utilisateurs, firewall),
+- cloner le dépôt, copier `.env`,
+- puis appeler `deploy-without-nginx.sh` ou `deploy-services.sh`.
+
+---
+
+## Troubleshooting
+
+- **Port déjà occupé**
+
+  ```
+  sudo ss -lnt
+  ```
+
+  Adapter les ports dans `.env` et relancer le script de déploiement.
+
+- **Mattermost ne démarre pas**
+
+  Vérifier les logs :
+
+  ```
+  docker logs mattermost-postgres-1 | tail -50
+  docker logs mattermost-mattermost-1 | tail -50
+  ```
+
+  S’assurer de la cohérence entre `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` et `MM_SQLSETTINGS_DATASOURCE`.
+
+- **Service accessible en `curl` sur la VM mais pas depuis l’extérieur**
+
+  Vérifier les règles de pare‑feu de la VM / hyperviseur / réseau école, ainsi que la configuration Nginx en mode proxy.
+
+---
+
+## Authors
+
+- BEHI ET KOMBO – Projet AL 2025.
 
 ## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+
+Projet pédagogique actif pour l’année 2025 ; la stack reste utilisable comme base de déploiement pour des environnements de développement ou de test.
+```
