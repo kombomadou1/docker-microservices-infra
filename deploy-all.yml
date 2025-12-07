@@ -15,7 +15,7 @@
 
     - name: Copier .env_example comme .env a la racine du projet
       ansible.builtin.copy:
-        src: .env_example
+        src: .env
         dest: "{{ project_path }}/.env"
         mode: "0644"
 
