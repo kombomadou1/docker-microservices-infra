@@ -1,4 +1,24 @@
 ---
+- name: Preparer le .env global
+  hosts: docker_hosts
+  become: true
+
+  vars:
+    project_path: /opt/docker_services
+
+  tasks:
+    - name: Creer le dossier racine du projet s'il n'existe pas
+      ansible.builtin.file:
+        path: "{{ project_path }}"
+        state: directory
+        mode: "0755"
+
+    - name: Copier .env_example comme .env a la racine du projet
+      ansible.builtin.copy:
+        src: .env_example
+        dest: "{{ project_path }}/.env"
+        mode: "0644"
+
 - name: Deployer tous les services Docker
   hosts: docker_hosts
   become: true
