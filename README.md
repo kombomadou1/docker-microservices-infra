@@ -1,4 +1,4 @@
-# ESIR-as-a-Service-2025
+# Docker-Microservices-Infra
 
 Plateforme de services auto‑hébergés pour les projets ESIR : forge Git, wiki, chat, cloud de fichiers, gestion de mots de passe et monitoring, déployés sur une VM Ubuntu via Docker / Nginx / Ansible.
 
@@ -15,8 +15,8 @@ Ce dépôt contient tout le nécessaire pour :
 ### Cloner le projet
 
 ```
-git clone https://gitlab2.istic.univ-rennes1.fr/esir-as-a-service-2025-docker/esir-as-a-service-2025.git
-cd esir-as-a-service-2025
+git clone https://github.com/kombomadou1/docker-microservices-infra.git
+cd docker-microservices-infra
 ```
 
 ---
@@ -148,7 +148,7 @@ chmod +x clean-services.sh
 Ce mode publie chaque service directement sur un port de la VM.
 
 ```
-cd esir-as-a-service-2025
+cd docker-microservices-infra
 sudo ./deploy-without-nginx.sh
 ```
 
@@ -190,7 +190,7 @@ curl -I http://localhost:8080    # Nextcloud
 Ce mode expose les services via Nginx en utilisant `DOMAIN_BASE` et les fichiers de `configs/http` et `configs/https`.
 
 ```
-cd esir-as-a-service-2025
+cd docker-microservices-infra
 sudo ./deploy-services.sh
 ```
 
@@ -224,7 +224,7 @@ Les fichiers `configs/https/*.conf` sont prêts pour activer le HTTPS avec des c
 Pour arrêter et nettoyer tous les services, ainsi que le réseau Docker et les vhosts Nginx du projet :
 
 ```
-cd esir-as-a-service-2025
+cd docker-microservices-infra
 sudo ./clean-services.sh
 ```
 
